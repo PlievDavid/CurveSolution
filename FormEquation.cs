@@ -230,7 +230,7 @@ namespace CurveSolution
                 coefficients['F'] = 1;
             }
         }
-        void Calculations()
+        void WriteCoefficients()
         {
             double A = Convert.ToDouble(textBoxA.Text) * coefficients['A'];
             double B = Convert.ToDouble(textBoxB.Text) * coefficients['B'] / 2;
@@ -238,41 +238,17 @@ namespace CurveSolution
             double D = Convert.ToDouble(textBoxD.Text) * coefficients['D'] / 2;
             double E = Convert.ToDouble(textBoxE.Text) * coefficients['E'] / 2;
             double F = Convert.ToDouble(textBoxF.Text) * coefficients['F'] / 2;
-            double x0 = 0;
-            double y0 = 0;
-            double S = A + C;
-            double delta = A * C - B * B;
-            double Delta = A * C * F - C * D * D + 2 * D * B * E - F * B * B - A * E * E;
-            double tgAlpha = Math.Max((C - A + Math.Sqrt((C - A) * (C - A) - 4 * B * (-B))) / (2 * B), (C - A - Math.Sqrt((C - A) * (C - A) - 4 * B * (-B))) / (2 * B));
-            double sinAlpha = tgAlpha / (Math.Sqrt(1 + tgAlpha * tgAlpha));
-            double cosAlpha = 1 / (Math.Sqrt(1 + tgAlpha * tgAlpha));
-            double AStr = 0;
-            double FStr = 0;
-            double CStr = 0;
-            if (delta != 0)
-            {
-                x0 = (C * D - B * E) / (B * B - A * C);
-                y0 = (-D - A * x0) / B;
-                FStr = Delta / delta;
-                AStr = (-S + Math.Sqrt(S * S - 4 * delta)) / 2;
-                if (AStr == B * tgAlpha + A)
-                {
-                    CStr = (-S - Math.Sqrt(S * S - 4 * delta)) / 2;
-                }
-                else
-                {
-                    CStr = AStr;
-                    AStr = (-S - Math.Sqrt(S * S - 4 * delta)) / 2;
-                }
-
-            }
             StreamWriter coordinates = new StreamWriter("data/graph.txt");
-            coordinates.WriteLine(x0 + " " + y0 + " " + sinAlpha + " " + cosAlpha + " " + AStr + " " + CStr + " " + FStr);
+            coordinates.WriteLine(A + " " + B + " " + C + " " + D+ " " + E + " " + F);
             coordinates.Close();
+
+
+           
+            
         }
         private void buttonSolve_Click(object sender, EventArgs e)
         {
-            Calculations();
+            WriteCoefficients();
             FormGraph graph = new FormGraph { };
             graph.Show();
         }
