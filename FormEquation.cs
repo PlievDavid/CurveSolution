@@ -237,7 +237,7 @@ namespace CurveSolution
             double C = Convert.ToDouble(textBoxC.Text) * coefficients['C'];
             double D = Convert.ToDouble(textBoxD.Text) * coefficients['D'] / 2;
             double E = Convert.ToDouble(textBoxE.Text) * coefficients['E'] / 2;
-            double F = Convert.ToDouble(textBoxF.Text) * coefficients['F'] / 2;
+            double F = Convert.ToDouble(textBoxF.Text) * coefficients['F'];
             StreamWriter coordinates = new StreamWriter("data/graph.txt");
             coordinates.WriteLine(A + " " + B + " " + C + " " + D+ " " + E + " " + F);
             coordinates.Close();
