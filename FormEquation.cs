@@ -230,7 +230,7 @@ namespace CurveSolution
                 coefficients['F'] = 1;
             }
         }
-        void WriteCoefficients()
+        void WriteCoefficients(FormGraph graph)
         {
             double A = Convert.ToDouble(textBoxA.Text) * coefficients['A'];
             double B = Convert.ToDouble(textBoxB.Text) * coefficients['B'] / 2;
@@ -238,18 +238,12 @@ namespace CurveSolution
             double D = Convert.ToDouble(textBoxD.Text) * coefficients['D'] / 2;
             double E = Convert.ToDouble(textBoxE.Text) * coefficients['E'] / 2;
             double F = Convert.ToDouble(textBoxF.Text) * coefficients['F'];
-            StreamWriter coordinates = new StreamWriter("data/graph.txt");
-            coordinates.WriteLine(A + " " + B + " " + C + " " + D+ " " + E + " " + F);
-            coordinates.Close();
-
-
-           
-            
+            graph.Coefficients = (A + " " + B + " " + C + " " + D + " " + E + " " + F).Split();
         }
         private void buttonSolve_Click(object sender, EventArgs e)
         {
-            WriteCoefficients();
             FormGraph graph = new FormGraph { };
+            WriteCoefficients(graph);
             graph.Show();
         }
     }

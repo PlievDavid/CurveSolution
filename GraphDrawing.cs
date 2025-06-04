@@ -34,6 +34,17 @@ namespace CurveSolution
                 Graph = CreateGraph_Hyperbol(Graph, x0InPixels, y0InPixels, Math.Sign(coef.FStr / coef.AStr), Math.Sign(coef.FStr / coef.CStr));
             }
         }
+        public string GetCurveType()
+        {
+            if (coef.AStr * coef.CStr >= 0)
+            {
+                return "Эллипс";
+            }
+            else
+            {
+                return "Гипербола";
+            }
+        }
         /// <summary>
         /// Генерирует изображение клеточного поля с осями координат
         /// </summary>

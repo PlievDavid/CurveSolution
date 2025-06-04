@@ -13,6 +13,7 @@ namespace CurveSolution
 {
     public partial class FormGraph : Form
     {
+        public string[] Coefficients { get; set; }
         //клетка = 17 пикселей
         double squareInPixels = 17;
         CalculationCoefficients coef;
@@ -25,10 +26,7 @@ namespace CurveSolution
        
         private void FormGraph_Load(object sender, EventArgs e)
         {
-            StreamReader file = new StreamReader("data/graph.txt");
-            string[] coefficients = file.ReadLine().Split();
-            file.Close();
-            coef = new CalculationCoefficients(coefficients);
+            coef = new CalculationCoefficients(Coefficients);
             if (coef.Delta != 0)
             {
                 labelAphineX.Text = "x = x' * " + coef.CosAlpha.ToString() + " - y' * " + coef.SinAlpha.ToString() + " + " + coef.X0.ToString();
@@ -78,6 +76,10 @@ namespace CurveSolution
             }
             else
                 labelSignB.Text = "-";
+            StreamWriter wr = new StreamWriter("data/graph.txt");
+            wr.WriteLine("Тип кривой: " + graph.GetCurveType());
+            wr.WriteLine("Координаты центра: " + coef.X0 + ", " + coef.Y0);
+            wr.Close();
         }
         /// <summary>
         /// Отображает клеточное поле с графиком
