@@ -14,27 +14,27 @@ namespace CurveSolution
     {
         public class CalculationCoefficients
         {
-            public double A { get; set; }
-            public double B { get; set; }
-            public double C { get; set; }
-            public double D { get; set; }
-            public double E { get; set; }
-            public double F { get; set; }
-            public double S { get; set; }
-            public double Delta { get; set; }
-            public double BigDelta { get; set; }
-            public double TgAlpha { get; set; }
-            public double SinAlpha { get; set; }
-            public double CosAlpha { get; set; }
-            public double AStr { get; set; }
-            public double FStr { get; set; }
-            public double CStr { get; set; }
-            public double X0 { get; set; }
-            public double Y0 { get; set; }
-            public double GraphA { get; set; }
-            public double GraphB { get; set; }
-            public double GraphAInSquare { get; set; }
-            public double GraphBInSquare { get; set; }
+            public double A { get; private set; }
+            public double B { get; private set; }
+            public double C { get; private set; }
+            public double D { get; private set; }
+            public double E { get; private set; }
+            public double F { get; private set; }
+            public double S { get; private set; }
+            public double Delta { get; private set; }
+            public double BigDelta { get; private set; }
+            public double TgAlpha { get; private set; }
+            public double SinAlpha { get; private set; }
+            public double CosAlpha { get; private set; }
+            public double AStr { get; private set; }
+            public double FStr { get; private set; }
+            public double CStr { get; private set; }
+            public double X0 { get; private set; }
+            public double Y0 { get; private set; }
+            public double GraphA { get; private set; }
+            public double GraphB { get; private set; }
+            public double GraphAInSquare { get; private set; }
+            public double GraphBInSquare { get; private set; }
             public CalculationCoefficients(string[] coefficients)
             {
                 A = Convert.ToDouble(coefficients[0]);

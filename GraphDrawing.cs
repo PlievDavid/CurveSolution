@@ -14,15 +14,15 @@ namespace CurveSolution
         CalculationCoefficients coef;
         double squareInPixels;
         string backgroundImage;
-        public Bitmap Graph { get; set; }
-        public PictureBox HLine { get; set; }
-        public PictureBox VLine { get; set; }
-        public GraphDrawing(CalculationCoefficients cf, int centerX, int centerY, double x0InPixels, double y0InPixels, string backgroundImage, PictureBox line, PictureBox line2, double squareInPixels)
+        public Bitmap Graph { get; private set; }
+        public PictureBox HLine { get; private set; }
+        public PictureBox VLine { get; private set; }
+        public GraphDrawing(CalculationCoefficients cf, int centerX, int centerY, double x0InPixels, double y0InPixels, string backgroundImage, PictureBox HLine, PictureBox VLine, double squareInPixels)
         {
             coef = cf;
             this.backgroundImage = backgroundImage;
-            HLine = line;
-            VLine = line2;
+            this.HLine = HLine;
+            this.VLine = VLine;
             this.squareInPixels = squareInPixels;
             Graph = DrawField(centerX, centerY, x0InPixels, y0InPixels);
             if (coef.AStr * coef.CStr >= 0)
@@ -140,6 +140,13 @@ namespace CurveSolution
 
             return result;
         }
+        /// <summary>
+        /// Генерирует на клеточном поле графиик эллипса
+        /// </summary>
+        /// <param name="squareField">клетоное поле</param>
+        /// <param name="x0InPixels">икс центра гиперболы в пикселях</param>
+        /// <param name="y0InPixels">игрик центра гиперболы в пикселях</param>
+        /// <returns>Возвращает клеточное поле с графиком эллипса</returns>
         Bitmap CreateGraph_Ellipse(Bitmap squareField, double x0InPixels, double y0InPixels)
         {
             Bitmap result = squareField;

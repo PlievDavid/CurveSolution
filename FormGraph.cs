@@ -29,13 +29,13 @@ namespace CurveSolution
             coef = new CalculationCoefficients(Coefficients);
             if (coef.Delta != 0)
             {
-                labelAphineX.Text = "x = x' * " + coef.CosAlpha.ToString() + " - y' * " + coef.SinAlpha.ToString() + " + " + coef.X0.ToString();
-                labelAphineY.Text = "y = x' * " + coef.SinAlpha.ToString() + " + y' * " + coef.CosAlpha.ToString() + " + " + coef.Y0.ToString();
+                labelAphineX.Text = "x = x' * " + ((float)coef.CosAlpha).ToString() + " - y' * " + ((float)coef.SinAlpha).ToString() + " + " + ((float)coef.X0).ToString();
+                labelAphineY.Text = "y = x' * " + ((float)coef.SinAlpha).ToString() + " + y' * " + ((float)coef.CosAlpha).ToString() + " + " + ((float)coef.Y0).ToString();
             }
             else
             {
-                labelAphineX.Text = "x = x' * " + coef.CosAlpha.ToString() + " - y' * " + coef.SinAlpha.ToString();
-                labelAphineY.Text = "y = x' * " + coef.SinAlpha.ToString() + " + y' * " + coef.CosAlpha.ToString();
+                labelAphineX.Text = "x = x' * " + ((float)coef.CosAlpha).ToString() + " - y' * " + ((float)coef.SinAlpha).ToString();
+                labelAphineY.Text = "y = x' * " + ((float)coef.SinAlpha).ToString() + " + y' * " + ((float)coef.CosAlpha).ToString();
             }
             int centerX = 328;
             int centerY = 245;
@@ -55,11 +55,11 @@ namespace CurveSolution
                 y0InPixels += centerY;
                 y0InPixels -= temp;
             }
-            PictureBox Line = new PictureBox();
-            Line.Load("Images/redSquare.png");
-            PictureBox Line2 = new PictureBox();
-            Line2.Load("Images/redSquare.png");
-            graph = new GraphDrawing(coef, centerX, centerY, x0InPixels, y0InPixels, "Images/squareField.jpg", Line , Line2, squareInPixels);
+            PictureBox HLine = new PictureBox();
+            HLine.Load("Images/redSquare.png");
+            PictureBox VLine = new PictureBox();
+            VLine.Load("Images/redSquare.png");
+            graph = new GraphDrawing(coef, centerX, centerY, x0InPixels, y0InPixels, "Images/squareField.jpg", HLine , VLine, squareInPixels);
             LoadCurve(graph.Graph);
             panelGraph.Controls.Add(Field);
             labelA2.Text = ((float)coef.GraphAInSquare).ToString();
