@@ -14,9 +14,8 @@ namespace CurveSolution
     public partial class FormGraph : Form
     {
         public string[] Coefficients { get; set; }
-        //клетка = 17 пикселей
-        double squareInPixels = 17;
         CalculationCoefficients coef;
+        GraphCalc calc;
         GraphDrawing graph;
         public FormGraph()
         {
@@ -37,29 +36,14 @@ namespace CurveSolution
                 labelAphineX.Text = "x = x' * " + ((float)coef.CosAlpha).ToString() + " - y' * " + ((float)coef.SinAlpha).ToString();
                 labelAphineY.Text = "y = x' * " + ((float)coef.SinAlpha).ToString() + " + y' * " + ((float)coef.CosAlpha).ToString();
             }
-            int centerX = 328;
-            int centerY = 245;
-            double x0InPixels = coef.X0 * squareInPixels + centerX;
-            double y0InPixels = -coef.Y0 * squareInPixels + centerY;
-            if (x0InPixels<centerX)
-            {
-                int temp = centerX;
-                centerX += Math.Abs(centerX * (int)(centerX/x0InPixels))+1;
-                x0InPixels += centerX;
-                x0InPixels -= temp;
-            }
-            if (y0InPixels < centerY)
-            {
-                int temp = centerY;
-                centerY += Math.Abs(centerY * (int)(centerY/y0InPixels))+3;
-                y0InPixels += centerY;
-                y0InPixels -= temp;
-            }
+            
+            
             PictureBox HLine = new PictureBox();
             HLine.Load("Images/redSquare.png");
             PictureBox VLine = new PictureBox();
             VLine.Load("Images/redSquare.png");
-            graph = new GraphDrawing(coef, centerX, centerY, x0InPixels, y0InPixels, "Images/squareField.jpg", HLine , VLine, squareInPixels);
+            calc = new GraphCalc(coef);
+            graph = new GraphDrawing(coef, calc, "Images/squareField.jpg", HLine , VLine);
             LoadCurve(graph.Graph);
             panelGraph.Controls.Add(Field);
             labelA2.Text = ((float)coef.GraphAInSquare).ToString();

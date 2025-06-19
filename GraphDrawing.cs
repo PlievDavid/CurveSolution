@@ -12,28 +12,34 @@ namespace CurveSolution
     class GraphDrawing
     {
         CalculationCoefficients coef;
+        GraphCalc calc;
         double squareInPixels;
         string backgroundImage;
         public Bitmap Graph { get; private set; }
         public PictureBox HLine { get; private set; }
         public PictureBox VLine { get; private set; }
-        public GraphDrawing(CalculationCoefficients cf, int centerX, int centerY, double x0InPixels, double y0InPixels, string backgroundImage, PictureBox HLine, PictureBox VLine, double squareInPixels)
+        public GraphDrawing(CalculationCoefficients coef, GraphCalc calc, string backgroundImage, PictureBox HLine, PictureBox VLine)
         {
-            coef = cf;
+            this.coef = coef;
+            this.calc = calc;
             this.backgroundImage = backgroundImage;
             this.HLine = HLine;
             this.VLine = VLine;
-            this.squareInPixels = squareInPixels;
-            Graph = DrawField(centerX, centerY, x0InPixels, y0InPixels);
+            this.squareInPixels = calc.SquareInPixels;
+            Graph = DrawField();
             if (coef.AStr * coef.CStr >= 0)
             {
-                Graph = CreateGraph_Ellipse(Graph, x0InPixels, y0InPixels);
+                Graph = CreateGraph_Ellipse(Graph);
             }
             else
             {
-                Graph = CreateGraph_Hyperbol(Graph, x0InPixels, y0InPixels, Math.Sign(coef.FStr / coef.AStr), Math.Sign(coef.FStr / coef.CStr));
+                Graph = CreateGraph_Hyperbol(Graph, calc.X0InPixels, calc.Y0InPixels);
             }
         }
+        /// <summary>
+        /// Определяет тип кривой
+        /// </summary>
+        /// <returns>вид кривой(string)</returns>
         public string GetCurveType()
         {
             if (coef.AStr * coef.CStr >= 0)
@@ -48,19 +54,15 @@ namespace CurveSolution
         /// <summary>
         /// Генерирует изображение клеточного поля с осями координат
         /// </summary>
-        /// <param name="centerX">иксовая координата центра осей</param>
-        /// <param name="centerY">игриковая координата центра осей </param>
-        /// <param name="endX">до каких пор генерировать изображение по икс</param>
-        /// <param name="endY">до каких пор генерировать изображение по игрик</param>
         /// <returns>Возвращает изображение клеточного поля с осями координат</returns>
-        Bitmap DrawField(int centerX, int centerY, double endX, double endY)
+        Bitmap DrawField()
         {
             Bitmap squareField = new Bitmap(backgroundImage);
             Bitmap squareFieldH = new Bitmap(backgroundImage);
             Bitmap squareFieldV = new Bitmap(backgroundImage);
-            for (int y = 0; y < endY; y += 245)
+            for (int y = 0; y < calc.Y0InPixels; y += 245)
             {
-                for (int x = 0; x < endX; x += 308)
+                for (int x = 0; x < calc.X0InPixels; x += 308)
                 {
                     if (y == 0)
                     {
@@ -77,7 +79,7 @@ namespace CurveSolution
                     }
                 }
             }
-            DrawLines(squareField, centerX, centerY);
+            DrawLines(squareField);
 
             return squareField;
         }
@@ -85,18 +87,16 @@ namespace CurveSolution
         /// Генерирует на изображении оси координат
         /// </summary>
         /// <param name="squareField">клеточное поле</param>
-        /// <param name="centerX">иксовая координата центра осей</param>
-        /// <param name="centerY">игриковая координата центра осей</param>
-        void DrawLines(Bitmap squareField, int centerX, int centerY)
+        void DrawLines(Bitmap squareField)
         {
             HLine.Height = 1;
             HLine.Width = squareField.Width;
             HLine.SizeMode = PictureBoxSizeMode.StretchImage;
-            HLine.Location = new Point(0, centerY);
+            HLine.Location = new Point(0, calc.CenterY);
             VLine.Height = squareField.Height; ;
             VLine.Width = 1;
             VLine.SizeMode = PictureBoxSizeMode.StretchImage;
-            VLine.Location = new Point(centerX, 0); 
+            VLine.Location = new Point(calc.CenterX, 0); 
         }
         /// <summary>
         /// Склеивает 2 изображения по вертикали
@@ -144,10 +144,8 @@ namespace CurveSolution
         /// Генерирует на клеточном поле графиик эллипса
         /// </summary>
         /// <param name="squareField">клетоное поле</param>
-        /// <param name="x0InPixels">икс центра гиперболы в пикселях</param>
-        /// <param name="y0InPixels">игрик центра гиперболы в пикселях</param>
         /// <returns>Возвращает клеточное поле с графиком эллипса</returns>
-        Bitmap CreateGraph_Ellipse(Bitmap squareField, double x0InPixels, double y0InPixels)
+        Bitmap CreateGraph_Ellipse(Bitmap squareField)
         {
             Bitmap result = squareField;
             using (Graphics g = Graphics.FromImage(result))
@@ -156,14 +154,16 @@ namespace CurveSolution
                 {
                     for (double y = -coef.GraphB; y <= coef.GraphB; y += 0.001)
                     {
-                        if ((0.999 <= ((x * x) / coef.GraphAInSquare + (y * y) / coef.GraphBInSquare)) && (((x * x) / coef.GraphAInSquare + (y * y) / coef.GraphBInSquare) <= 1.001))
+                        if (calc.IsEllipsePoint(x,y))
                         {
-                            g.DrawLine(new Pen(Color.Black, 3), new PointF((float)((x * coef.CosAlpha + y * coef.SinAlpha) * squareInPixels + x0InPixels), (float)((-x * coef.SinAlpha + y * coef.CosAlpha) * squareInPixels + y0InPixels)), new PointF((float)((x * coef.CosAlpha + y * coef.SinAlpha) * squareInPixels + x0InPixels + 0.1), (float)((-x * coef.SinAlpha + y * coef.CosAlpha) * squareInPixels + y0InPixels + 0.1)));
+                            PointF drawLineStart = calc.PointForGraphDrawing(x,y);
+                            PointF drawLineEnd = new PointF(drawLineStart.X + 0.1F, drawLineStart.Y + 0.1F);
+                            g.DrawLine(new Pen(Color.Black, 3), drawLineStart, drawLineEnd);
                         }
                     }
                 }
-                g.DrawLine(new Pen(Color.Blue, 2), new PointF((float)((3 * coef.GraphA * coef.CosAlpha + 0 * coef.SinAlpha) * squareInPixels + x0InPixels), (float)((-3 * coef.GraphA * coef.SinAlpha + 0 * coef.CosAlpha) * squareInPixels + y0InPixels)), new PointF((float)((-3 * coef.GraphA * coef.CosAlpha + 0 * coef.SinAlpha) * squareInPixels + x0InPixels), (float)((3 * coef.GraphA * coef.SinAlpha + 0 * coef.CosAlpha) * squareInPixels + y0InPixels)));
-                g.DrawLine(new Pen(Color.Violet, 2), new PointF((float)((0 * coef.CosAlpha + 3 * coef.GraphB * coef.SinAlpha) * squareInPixels + x0InPixels), (float)((-0 * coef.SinAlpha + 3 * coef.GraphB * coef.CosAlpha) * squareInPixels + y0InPixels)), new PointF((float)((0 * coef.CosAlpha - 3 * coef.GraphB * coef.SinAlpha) * squareInPixels + x0InPixels), (float)((-0 * coef.SinAlpha - 3 * coef.GraphB * coef.CosAlpha) * squareInPixels + y0InPixels)));
+                g.DrawLine(new Pen(Color.Blue, 2), calc.PointForLineDrawing(true,true) , calc.PointForLineDrawing(true,false));
+                g.DrawLine(new Pen(Color.Violet, 2), calc.PointForLineDrawing(false,true) , calc.PointForLineDrawing(false,false));
             }
             return result;
         }
@@ -173,10 +173,8 @@ namespace CurveSolution
         /// <param name="squareField">клетоное поле</param>
         /// <param name="x0InPixels">икс центра гиперболы в пикселях</param>
         /// <param name="y0InPixels">игрик центра гиперболы в пикселях</param>
-        /// <param name="signA">знак коэффицента А</param>
-        /// <param name="signC">знак коэффицента С</param>
         /// <returns>Возвращает клеточное поле с графиком гиперболы</returns>
-        Bitmap CreateGraph_Hyperbol(Bitmap squareField, double x0InPixels, double y0InPixels, int signA, int signC)
+        Bitmap CreateGraph_Hyperbol(Bitmap squareField, double x0InPixels, double y0InPixels)
         {
             Pen pen = new Pen(Color.Green, 2);
             Bitmap result = squareField;
@@ -184,15 +182,17 @@ namespace CurveSolution
             {
                 if (coef.BigDelta != 0)
                 {
-                    if (signA > 0)
+                    if (calc.SignA > 0)
                     {
                         for (double x = -3 * coef.GraphA; x <= -coef.GraphA; x += 0.001)
                         {
                             for (double y = -3 * coef.GraphB; y <= 3 * coef.GraphB; y += 0.001)
                             {
-                                if ((0.999 <= ((x * x) / coef.GraphAInSquare * signA + (y * y) / coef.GraphBInSquare * signC)) && (((x * x) / coef.GraphAInSquare * signA + (y * y) / coef.GraphBInSquare * signC) <= 1.001))
+                                if (calc.IsHyperbolPoint(x,y))
                                 {
-                                    g.DrawLine(new Pen(Color.Black, 3), new PointF((float)((x * coef.CosAlpha + y * coef.SinAlpha) * squareInPixels + x0InPixels), (float)((-x * coef.SinAlpha + y * coef.CosAlpha) * squareInPixels + y0InPixels)), new PointF((float)((x * coef.CosAlpha + y * coef.SinAlpha) * squareInPixels + x0InPixels + 0.1), (float)((-x * coef.SinAlpha + y * coef.CosAlpha) * squareInPixels + y0InPixels + 0.1)));
+                                    PointF drawLineStart = calc.PointForGraphDrawing(x, y);
+                                    PointF drawLineEnd = new PointF(drawLineStart.X + 0.1F, drawLineStart.Y + 0.1F);
+                                    g.DrawLine(new Pen(Color.Black, 3), drawLineStart, drawLineEnd);
                                 }
                             }
                         }
@@ -200,22 +200,26 @@ namespace CurveSolution
                         {
                             for (double y = -3 * coef.GraphB; y <= 3 * coef.GraphB; y += 0.001)
                             {
-                                if ((0.999 <= ((x * x) / coef.GraphAInSquare * signA + (y * y) / coef.GraphBInSquare * signC)) && (((x * x) / coef.GraphAInSquare * signA + (y * y) / coef.GraphBInSquare * signC) <= 1.001))
+                                if (calc.IsHyperbolPoint(x, y))
                                 {
-                                    g.DrawLine(new Pen(Color.Black, 3), new PointF((float)((x * coef.CosAlpha + y * coef.SinAlpha) * squareInPixels + x0InPixels), (float)((-x * coef.SinAlpha + y * coef.CosAlpha) * squareInPixels + y0InPixels)), new PointF((float)((x * coef.CosAlpha + y * coef.SinAlpha) * squareInPixels + x0InPixels + 0.1), (float)((-x * coef.SinAlpha + y * coef.CosAlpha) * squareInPixels + y0InPixels + 0.1)));
+                                    PointF drawLineStart = calc.PointForGraphDrawing(x, y);
+                                    PointF drawLineEnd = new PointF(drawLineStart.X + 0.1F, drawLineStart.Y + 0.1F);
+                                    g.DrawLine(new Pen(Color.Black, 3), drawLineStart, drawLineEnd);
                                 }
                             }
                         }
                     }
-                    else if (signC > 0)
+                    else if (calc.SignC > 0)
                     {
                         for (double x = -3 * coef.GraphA; x <= 3 * coef.GraphA; x += 0.001)
                         {
                             for (double y = coef.GraphB; y <= 3 * coef.GraphB; y += 0.001)
                             {
-                                if ((0.999 <= ((x * x) / coef.GraphAInSquare * signA + (y * y) / coef.GraphBInSquare * signC)) && (((x * x) / coef.GraphAInSquare * signA + (y * y) / coef.GraphBInSquare * signC) <= 1.001))
+                                if (calc.IsHyperbolPoint(x, y))
                                 {
-                                    g.DrawLine(new Pen(Color.Black, 3), new PointF((float)((x * coef.CosAlpha + y * coef.SinAlpha) * squareInPixels + x0InPixels), (float)((-x * coef.SinAlpha + y * coef.CosAlpha) * squareInPixels + y0InPixels)), new PointF((float)((x * coef.CosAlpha + y * coef.SinAlpha) * squareInPixels + x0InPixels + 0.1), (float)((-x * coef.SinAlpha + y * coef.CosAlpha) * squareInPixels + y0InPixels + 0.1)));
+                                    PointF drawLineStart = calc.PointForGraphDrawing(x, y);
+                                    PointF drawLineEnd = new PointF(drawLineStart.X + 0.1F, drawLineStart.Y + 0.1F);
+                                    g.DrawLine(new Pen(Color.Black, 3), drawLineStart, drawLineEnd);
                                 }
                             }
                         }
@@ -223,9 +227,11 @@ namespace CurveSolution
                         {
                             for (double y = -3 * coef.GraphB; y <= -coef.GraphB; y += 0.001)
                             {
-                                if ((0.999 <= ((x * x) / coef.GraphAInSquare * signA + (y * y) / coef.GraphBInSquare * signC)) && (((x * x) / coef.GraphAInSquare * signA + (y * y) / coef.GraphBInSquare * signC) <= 1.001))
+                                if (calc.IsHyperbolPoint(x, y))
                                 {
-                                    g.DrawLine(new Pen(Color.Black, 3), new PointF((float)((x * coef.CosAlpha + y * coef.SinAlpha) * squareInPixels + x0InPixels), (float)((-x * coef.SinAlpha + y * coef.CosAlpha) * squareInPixels + y0InPixels)), new PointF((float)((x * coef.CosAlpha + y * coef.SinAlpha) * squareInPixels + x0InPixels + 0.1), (float)((-x * coef.SinAlpha + y * coef.CosAlpha) * squareInPixels + y0InPixels + 0.1)));
+                                    PointF drawLineStart = calc.PointForGraphDrawing(x, y);
+                                    PointF drawLineEnd = new PointF(drawLineStart.X + 0.1F, drawLineStart.Y + 0.1F);
+                                    g.DrawLine(new Pen(Color.Black, 3), drawLineStart, drawLineEnd);
                                 }
                             }
                         }
@@ -235,10 +241,10 @@ namespace CurveSolution
                 {
                     pen = new Pen(Color.Black, 3);
                 }
-                g.DrawLine(new Pen(Color.Blue, 2), new PointF((float)((3 * coef.GraphA * coef.CosAlpha - 0 * coef.SinAlpha) * squareInPixels + x0InPixels), (float)(-(3 * coef.GraphA * coef.SinAlpha + 0 * coef.CosAlpha) * squareInPixels + y0InPixels)), new PointF((float)((-3 * coef.GraphA * coef.CosAlpha - 0 * coef.SinAlpha) * squareInPixels + x0InPixels), (float)(-(-3 * coef.GraphA * coef.SinAlpha + 0 * coef.CosAlpha) * squareInPixels + y0InPixels)));
-                g.DrawLine(new Pen(Color.Violet, 2), new PointF((float)((0 * coef.CosAlpha - 3 * coef.GraphB * coef.SinAlpha) * squareInPixels + x0InPixels), (float)(-(0 * coef.SinAlpha + 3 * coef.GraphB * coef.CosAlpha) * squareInPixels + y0InPixels)), new PointF((float)((0 * coef.CosAlpha - -3 * coef.GraphB * coef.SinAlpha) * squareInPixels + x0InPixels), (float)(-(0 * coef.SinAlpha - 3 * coef.GraphB * coef.CosAlpha) * squareInPixels + y0InPixels)));
-                g.DrawLine(pen, new PointF((float)((3 * coef.GraphA * coef.CosAlpha - 3 * coef.GraphB * coef.SinAlpha) * squareInPixels + x0InPixels), (float)(-(3 * coef.GraphA * coef.SinAlpha + 3 * coef.GraphB * coef.CosAlpha) * squareInPixels + y0InPixels)), new PointF((float)((-3 * coef.GraphA * coef.CosAlpha - -3 * coef.GraphB * coef.SinAlpha) * squareInPixels + x0InPixels), (float)(-(-3 * coef.GraphA * coef.SinAlpha + -3 * coef.GraphB * coef.CosAlpha) * squareInPixels + y0InPixels)));
-                g.DrawLine(pen, new PointF((float)((-3 * coef.GraphA * coef.CosAlpha - 3 * coef.GraphB * coef.SinAlpha) * squareInPixels + x0InPixels), (float)(-(-3 * coef.GraphA * coef.SinAlpha + 3 * coef.GraphB * coef.CosAlpha) * squareInPixels + y0InPixels)), new PointF((float)((3 * coef.GraphA * coef.CosAlpha - -3 * coef.GraphB * coef.SinAlpha) * squareInPixels + x0InPixels), (float)(-(3 * coef.GraphA * coef.SinAlpha + -3 * coef.GraphB * coef.CosAlpha) * squareInPixels + y0InPixels)));
+                g.DrawLine(new Pen(Color.Blue, 2), calc.PointForLineDrawing(true, true), calc.PointForLineDrawing(true, false));
+                g.DrawLine(new Pen(Color.Violet, 2), calc.PointForLineDrawing(false,true) , calc.PointForLineDrawing(false,false));
+                g.DrawLine(pen, calc.PointForAsymptoteLineDrawing(true, true), calc.PointForAsymptoteLineDrawing(true, false));
+                g.DrawLine(pen, calc.PointForAsymptoteLineDrawing(false, true), calc.PointForAsymptoteLineDrawing(false, false));
             }
             return result;
         }

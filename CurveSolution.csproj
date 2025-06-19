@@ -61,6 +61,9 @@
     <Compile Include="FormGraph.Designer.cs">
       <DependentUpon>FormGraph.cs</DependentUpon>
     </Compile>
+    <Compile Include="GraphCalc.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="GraphDrawing.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
